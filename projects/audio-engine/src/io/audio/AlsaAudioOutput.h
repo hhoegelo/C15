@@ -5,6 +5,9 @@
 #include <functional>
 #include <thread>
 #include <memory>
+#include <vector>
+#include <tuple>
+#include <future>
 #include <alsa/asoundlib.h>
 
 class AudioWriterBase;
@@ -32,6 +35,7 @@ class AlsaAudioOutput : public AudioOutput
   template <typename T> snd_pcm_sframes_t playbackIntLE(const SampleFrame *frames, size_t numFrames);
   snd_pcm_sframes_t playbackF32(SampleFrame *frames, size_t numFrames);
   snd_pcm_sframes_t playbackInt24LE(const SampleFrame *frames, size_t numFrames);
+  void writeTimestamps();
 
   Callback m_cb;
   snd_pcm_t *m_handle = nullptr;
@@ -43,4 +47,10 @@ class AlsaAudioOutput : public AudioOutput
 
   std::unique_ptr<AudioWriterBase> m_writer;
   const AudioEngineOptions *m_options;
+
+  std::vector<std::tuple<int64_t, int64_t, int64_t>> m_timestamps;
+  uint64_t m_timestampWriteHead = 0;
+  uint64_t m_timestampReadHead = 0;
+  std::future<void> m_timestampWriter;
+  bool m_close = false;
 };

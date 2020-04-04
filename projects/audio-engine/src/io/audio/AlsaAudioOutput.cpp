@@ -5,6 +5,7 @@
 #include <nltools/logging/Log.h>
 #include <iostream>
 #include <algorithm>
+#include <fstream>
 
 int checkAlsa(int res)
 {
@@ -17,6 +18,8 @@ int checkAlsa(int res)
 AlsaAudioOutput::AlsaAudioOutput(const AudioEngineOptions* options, const std::string& deviceName, Callback cb)
     : m_cb(cb)
     , m_options(options)
+    , m_timestamps(1024 * 1024)
+    , m_timestampWriter(std::async(std::launch::async, [=] { writeTimestamps(); }))
 {
   open(deviceName);
 }
@@ -24,6 +27,9 @@ AlsaAudioOutput::AlsaAudioOutput(const AudioEngineOptions* options, const std::s
 AlsaAudioOutput::~AlsaAudioOutput()
 {
   close();
+
+  m_close = true;
+  m_timestampWriter.wait();
 }
 
 void AlsaAudioOutput::close()
@@ -111,12 +117,18 @@ void AlsaAudioOutput::doBackgroundWork()
 
   auto microsPerBuffer = std::micro::den * framesPerCallback / m_options->getSampleRate();
 
+  auto startTime = g_get_monotonic_time();
+
   while(m_run)
   {
-    auto startDSP = g_get_monotonic_time();
+    auto startDSP = g_get_monotonic_time() - startTime;
     m_cb(audio, framesPerCallback);
-    auto endDSP = g_get_monotonic_time();
+    auto endDSP = g_get_monotonic_time() - startTime;
     playback(audio, framesPerCallback);
+    auto endPlayback = g_get_monotonic_time() - startTime;
+
+    m_timestamps[m_timestampWriteHead % m_timestamps.size()] = { startDSP, endDSP, endPlayback };
+    m_timestampWriteHead++;
 
     auto diff = endDSP - startDSP;
     reportPerformanceRatio(1.0 * diff / microsPerBuffer);
@@ -150,6 +162,26 @@ void AlsaAudioOutput::handleWriteError(snd_pcm_sframes_t result)
     {
       nltools::Log::warning("recovered from x-run");
       snd_pcm_start(m_handle);
+    }
+  }
+}
+
+void AlsaAudioOutput::writeTimestamps()
+{
+  auto fileName = getenv("TIMESTAMPS");
+  if(fileName && strlen(fileName))
+  {
+    std::ofstream file(fileName);
+
+    while(!m_close)
+    {
+      while(m_timestampReadHead < m_timestampWriteHead)
+      {
+        auto& v = m_timestamps[m_timestampReadHead % m_timestamps.size()];
+        file << std::get<0>(v) << "," << std::get<1>(v) << "," << std::get<2>(v) << std::endl;
+        m_timestampReadHead++;
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
   }
 }
