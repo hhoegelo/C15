@@ -137,7 +137,7 @@ update_fstab() {
 
 main() {
     mkdir -p /workdir || error "Creation of workdir failed"
-    mount -o loop /bindir/fs.ext4 /workdir || error "Mouning filesystem failed."
+    fuse2fs /bindir/fs.ext4 /workdir || error "Mouning filesystem failed."
 
     setup_build_overlay || error "Setting up build overlay failed."
     build_update || error "Building the update failed"

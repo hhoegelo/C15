@@ -44,7 +44,7 @@ add_custom_command(
         " "
         "git config --global user.email bob@the-builder.com"
         "mkdir -p /fs"
-        "mount -o loop /workdir/fs.ext4 /fs"
+        "fuse2fs /workdir/fs.ext4 /fs"
         'git clone https://github.com/nonlinear-labs-dev/nonlinux.git /fs/nonlinux || true'
         "cd /fs/nonlinux"
         'git remote add rw git@github.com:nonlinear-labs-dev/nonlinux.git || true'
@@ -61,7 +61,7 @@ add_custom_command(
         " "
         "git config --global user.email bob@the-builder.com"
         "mkdir -p /fs"
-        "mount -o loop /workdir/fs.ext4 /fs"
+        "fuse2fs /workdir/fs.ext4 /fs"
         "cd /fs/nonlinux"
         "rm -f .gitattributes"
         "git fetch origin"
@@ -78,7 +78,7 @@ add_custom_command(
         ${CMAKE_SOURCE_DIR}
         " "
         "mkdir -p /fs"
-        "mount -o loop /workdir/fs.ext4 /fs"
+        "fuse2fs /workdir/fs.ext4 /fs"
         "mkdir -p /fs/ccache"
         "export HOME=/fs/ccache"
         "cd /fs/nonlinux"
@@ -96,7 +96,7 @@ add_custom_command(
         ${CMAKE_SOURCE_DIR}
         " "
         "mkdir -p /fs"
-        "mount -o loop /workdir/fs.ext4 /fs"
+        "fuse2fs /workdir/fs.ext4 /fs"
         "mkdir -p /fs/ccache"
         "export HOME=/fs/ccache"
         'rm -rf /fs/nonlinux/output/target/usr/C15'
@@ -124,7 +124,7 @@ add_custom_command(
         ${CMAKE_SOURCE_DIR}
         " -ti "
         "mkdir -p /fs"
-        "mount -o loop /workdir/fs.ext4 /fs"
+        "fuse2fs /workdir/fs.ext4 /fs"
         "mkdir -p /fs/ccache"
         "export HOME=/fs/ccache"
         "cd /fs/nonlinux"

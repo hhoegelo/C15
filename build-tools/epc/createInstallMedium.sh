@@ -31,7 +31,7 @@ sudo mkfs.msdos $PARTITION || error "Could not mk filesystem on target device"
 
 mkdir -p $CMAKE_CURRENT_BINARY_DIR/NonLinux-mnt
 mkdir -p $CMAKE_CURRENT_BINARY_DIR/InstallMedium-mnt
-sudo mount -o loop $CMAKE_CURRENT_BINARY_DIR/NonLinuxAP.iso $CMAKE_CURRENT_BINARY_DIR/NonLinux-mnt || error "Could not mount source ISO image"
+sudo fuseiso $CMAKE_CURRENT_BINARY_DIR/NonLinuxAP.iso $CMAKE_CURRENT_BINARY_DIR/NonLinux-mnt || error "Could not mount source ISO image"
 sudo mount $PARTITION $CMAKE_CURRENT_BINARY_DIR/InstallMedium-mnt || error "Could not mount target device: $TARGET"
 sudo cp -a $CMAKE_CURRENT_BINARY_DIR/NonLinux-mnt/* $CMAKE_CURRENT_BINARY_DIR/InstallMedium-mnt || error "Could not copy content to target device"
 sudo umount $CMAKE_CURRENT_BINARY_DIR/InstallMedium-mnt || error "Problems unmounting the target device"
