@@ -2,23 +2,20 @@
 
 set -e
 
-mkdir -p /workdir
-fuse2fs /bindir/fs.ext4 /workdir
+rm -rf /bindir/squashfs-root /bindir/overlay-scratch /bindir/overlay-workdir /bindir/overlay-fs
 
-rm -rf /workdir/squashfs-root /workdir/overlay-scratch /workdir/overlay-workdir /workdir/overlay-fs
-
-mkdir -p /internal/AP-Linux-mnt /workdir/overlay-scratch /workdir/overlay-workdir /workdir/overlay-fs
+mkdir -p /internal/AP-Linux-mnt /bindir/overlay-scratch /bindir/overlay-workdir /bindir/overlay-fs
 fuseiso /bindir/AP-Linux-V.4.0.iso /internal/AP-Linux-mnt
 unsquashfs -no-xattrs /internal/AP-Linux-mnt/arch/x86_64/airootfs.sfs
 
-mv /squashfs-root /workdir
-fuse-overlayfs -o lowerdir=/workdir/squashfs-root -o upperdir=/workdir/overlay-scratch -o workdir=/workdir/overlay-workdir /workdir/overlay-fs
-mkdir /workdir/overlay-fs/Audiophile2NonLinux
-chmod 777 /workdir/overlay-fs/Audiophile2NonLinux
-cp -a /bindir/NonLinux.pkg.tar.gz /sources/hook /sources/install /sources/sda.sfdisk /workdir/overlay-fs/Audiophile2NonLinux
-cp -a /sources/runme.sh /workdir/overlay-fs/etc/profile.d/
+mv /squashfs-root /bindir
+fuse-overlayfs -o lowerdir=/bindir/squashfs-root -o upperdir=/bindir/overlay-scratch -o workdir=/bindir/overlay-workdir /bindir/overlay-fs
+mkdir /bindir/overlay-fs/Audiophile2NonLinux
+chmod 777 /bindir/overlay-fs/Audiophile2NonLinux
+cp -a /bindir/NonLinux.pkg.tar.gz /sources/hook /sources/install /sources/sda.sfdisk /bindir/overlay-fs/Audiophile2NonLinux
+cp -a /sources/runme.sh /bindir/overlay-fs/etc/profile.d/
 
-/workdir/overlay-fs/bin/arch-chroot /workdir/overlay-fs /bin/bash -c "\
+/bindir/overlay-fs/bin/arch-chroot /bindir/overlay-fs /bin/bash -c "\
 
 cp /Audiophile2NonLinux/install/nlhook /lib/initcpio/install/nlhook
 cp /Audiophile2NonLinux/install/oroot /lib/initcpio/install/oroot

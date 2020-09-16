@@ -25,14 +25,6 @@ add_custom_command(
 )
 
 add_custom_command(
-    COMMENT "Create filesystem"
-    OUTPUT  .filesystem-created
-    COMMAND truncate -s 10G ${CMAKE_CURRENT_BINARY_DIR}/fs.ext4
-    COMMAND mkfs.ext4 ${CMAKE_CURRENT_BINARY_DIR}/fs.ext4
-    COMMAND touch .filesystem-created
-)
-
-add_custom_command(
     COMMENT "Download APLinux image to ${CMAKE_CURRENT_BINARY_DIR}/AP-Linux-V.4.0.iso"
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/AP-Linux-V.4.0.iso
     #COMMAND wget https://netix.dl.sourceforge.net/project/ap-linux/AP-Linux-V.4.0.iso
@@ -42,7 +34,6 @@ add_custom_command(
 add_custom_command(
     COMMENT "Download update packages"
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/NonLinux.pkg.tar.gz
-    #COMMAND wget https://github.com/nonlinear-labs-dev/Audiophile2NonLinux/releases/download/1.0/NonLinux.pkg.tar.gz
     COMMAND wget https://nonlinearlabs.s3.eu-central-1.amazonaws.com/NonLinux.pkg.tar.gz
 )
 

@@ -58,12 +58,12 @@ deploy_update() {
 }
 
 setup_build_overlay() {
-    fuse-overlayfs -o lowerdir=/workdir/squashfs-root -o upperdir=/workdir/overlay-scratch -o workdir=/workdir/overlay-workdir /workdir/overlay-fs || error "fuse-overlay failed."
-    mkdir -p /workdir/overlay-fs/sources
-    mkdir -p /workdir/overlay-fs/build
-    mkdir -p /workdir/epc-nl-build
-    mount --bind /sources /workdir/overlay-fs/sources || error "Mounting the sources failed."
-    mount --bind /workdir/epc-nl-build /workdir/overlay-fs/build || error "Mounting the build folder failed."
+    fuse-overlayfs -o lowerdir=/bindir/squashfs-root -o upperdir=/bindir/overlay-scratch -o workdir=/bindir/overlay-workdir /bindir/overlay-fs || error "fuse-overlay failed."
+    mkdir -p /bindir/overlay-fs/sources
+    mkdir -p /bindir/overlay-fs/build
+    mkdir -p /bindir/epc-nl-build
+    mount --bind /sources /bindir/overlay-fs/sources || error "Mounting the sources failed."
+    mount --bind /bindir/epc-nl-build /bindir/overlay-fs/build || error "Mounting the build folder failed."
 }
 
 download_package() {
@@ -82,16 +82,16 @@ download_package() {
 }
 
 download_packages() {
-    mkdir -p /workdir/update-packages
-    cd /workdir/update-packages
+    mkdir -p /bindir/update-packages
+    cd /bindir/update-packages
     for package in $PACKAGES_TO_INSTALL; do
         if ! download_package ${package}; then
             return 1
         fi
     done
 
-    mkdir -p /workdir/overlay-fs/update-packages
-    cp /workdir/update-packages/* /workdir/overlay-fs/update-packages
+    mkdir -p /bindir/overlay-fs/update-packages
+    cp /bindir/update-packages/* /bindir/overlay-fs/update-packages
     return 0
 }
 
@@ -110,14 +110,14 @@ install_packages() {
 build_update() {
     download_packages || error "Downloading packages failed."
 
-    /workdir/overlay-fs/bin/arch-chroot /workdir/overlay-fs /bin/bash -c "\
+    /bindir/overlay-fs/bin/arch-chroot /bindir/overlay-fs /bin/bash -c "\
         cd /build && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EPC_SCRIPTS=On -DBUILD_AUDIOENGINE=On -DBUILD_PLAYGROUND=On -DBUILD_ONLINEHELP=On -DBUILD_WEBUI=On /sources && make -j8"
     return $?
 }
 
 setup_install_overlay() {
     mkdir -p /internal
-    cp -ra /workdir/overlay-fs /internal/built || error "Copying the build failed."
+    cp -ra /bindir/overlay-fs /internal/built || error "Copying the build failed."
     mkdir -p /internal/os /internal/ow /internal/epc-update-partition
     fuse-overlayfs -o lowerdir=/internal/built -o upperdir=/internal/os -o workdir=/internal/ow /internal/epc-update-partition
     return $?
@@ -137,9 +137,6 @@ update_fstab() {
 
 
 main() {
-    mkdir -p /workdir || error "Creation of workdir failed"
-    fuse2fs /bindir/fs.ext4 /workdir || error "Mouning filesystem failed."
-
     setup_build_overlay || error "Setting up build overlay failed."
     build_update || error "Building the update failed"
     setup_install_overlay || error "Setting up the install overlay failed."

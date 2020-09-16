@@ -49,7 +49,6 @@ DOCKERNAME="nl-cross-build-environment"
 docker run $DOCKER_ARGS \
     --privileged \
     --rm \
-    -ti \
     -v $SSH_DIR:/host-ssh \
     -v $TMP_DIR:/script \
     -v $BINARY_DIR:/workdir \
