@@ -1,7 +1,7 @@
 #!/bin/sh
 
 mkdir -p /internal/AP-Linux-mnt
-mount -o loop /bindir/AP-Linux-V.4.0.iso /internal/AP-Linux-mnt
+fuseiso /bindir/AP-Linux-V.4.0.iso /internal/AP-Linux-mnt
 
 mkdir -p /internal/AP-Linux-copy
 cp -R /internal/AP-Linux-mnt/* /internal/AP-Linux-copy/

@@ -1,0 +1,14 @@
+dist: focal
+before_install:
+  - sudo apt -y update 
+  - sudo apt -y install make cmake
+services: docker
+os: linux
+branches:
+  only:
+  - unstable
+script:
+  - mkdir -p ${HOME}/build
+  - cd ${HOME}/build
+  - cmake -G "Unix Makefiles" -DBUILD_EPC=On -DBUILD_BBB=On -DBUILD_LPC=On -DBUILD_TESTING=Off -DBUILD_PLAYGROUND=Off -DBUILD_BBBB=Off -DBUILD_AUDIOENGINE=Off ${TRAVIS_BUILD_DIR}
+  - make -C ${HOME}/build c15-update

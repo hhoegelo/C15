@@ -3,12 +3,12 @@
 set -e
 
 mkdir -p /workdir
-mount -o loop /bindir/fs.ext4 /workdir
+fuse2fs /bindir/fs.ext4 /workdir
 
 rm -rf /workdir/squashfs-root /workdir/overlay-scratch /workdir/overlay-workdir /workdir/overlay-fs
 
 mkdir -p /internal/AP-Linux-mnt /workdir/overlay-scratch /workdir/overlay-workdir /workdir/overlay-fs
-mount -o loop /bindir/AP-Linux-V.4.0.iso /internal/AP-Linux-mnt
+fuseiso /bindir/AP-Linux-V.4.0.iso /internal/AP-Linux-mnt
 unsquashfs -no-xattrs /internal/AP-Linux-mnt/arch/x86_64/airootfs.sfs
 
 mv /squashfs-root /workdir
