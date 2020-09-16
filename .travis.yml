@@ -8,7 +8,7 @@ branches:
   only:
   - unstable
 script:
-  - mkdir -p /build
-  - cd /build
+  - mkdir -p ${HOME}/build
+  - cd ${HOME}/build
   - cmake -G "Unix Makefiles" -DBUILD_EPC=On -DBUILD_BBB=On -DBUILD_LPC=On -DBUILD_TESTING=Off -DBUILD_PLAYGROUND=Off -DBUILD_BBBB=Off -DBUILD_AUDIOENGINE=Off ${TRAVIS_BUILD_DIR}
-  - make -C /build c15-update
+  - make -C ${HOME}/build c15-update
