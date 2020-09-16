@@ -22,31 +22,21 @@ string(STRIP ${USER_ID} USER_ID)
 add_custom_command(
     COMMENT "Create Docker Container for the current User ${USER}"
     OUTPUT .docker-container-created 
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Dockerfile
     COMMAND docker build -t ${DOCKERNAME} ${CMAKE_CURRENT_SOURCE_DIR} DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/Dockerfile 
     COMMAND touch .docker-container-created
 )
 
 add_custom_command(
-    COMMENT "Create filesystem"
-    OUTPUT  .filesystem-created
-    COMMAND truncate -s 12G ${CMAKE_CURRENT_BINARY_DIR}/fs.ext4
-    COMMAND mkfs.ext4 ${CMAKE_CURRENT_BINARY_DIR}/fs.ext4
-    COMMAND touch .filesystem-created
-)
-
-add_custom_command(
     COMMENT "Clone nonlinux from github"
     OUTPUT .nonlinux-cloned 
-    DEPENDS .filesystem-created
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/runInDocker.sh
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_SOURCE_DIR}
         " "
         "git config --global user.email bob@the-builder.com"
-        "mkdir -p /fs"
-        "mount -o loop /workdir/fs.ext4 /fs"
-        'git clone https://github.com/nonlinear-labs-dev/nonlinux.git /fs/nonlinux || true'
-        "cd /fs/nonlinux"
+        'git clone https://github.com/nonlinear-labs-dev/nonlinux.git /workdir/nonlinux || true'
+        "cd /workdir/nonlinux"
         'git remote add rw git@github.com:nonlinear-labs-dev/nonlinux.git || true'
     COMMAND touch .nonlinux-cloned
 )
@@ -60,9 +50,7 @@ add_custom_command(
         ${CMAKE_SOURCE_DIR}
         " "
         "git config --global user.email bob@the-builder.com"
-        "mkdir -p /fs"
-        "mount -o loop /workdir/fs.ext4 /fs"
-        "cd /fs/nonlinux"
+        "cd /workdir/nonlinux"
         "rm -f .gitattributes"
         "git fetch origin"
         "git checkout -f ${NONLINUX}"
@@ -77,11 +65,9 @@ add_custom_command(
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_SOURCE_DIR}
         " "
-        "mkdir -p /fs"
-        "mount -o loop /workdir/fs.ext4 /fs"
-        "mkdir -p /fs/ccache"
-        "export HOME=/fs/ccache"
-        "cd /fs/nonlinux"
+        "mkdir -p /workdir/ccache"
+        "export HOME=/workdir/ccache"
+        "cd /workdir/nonlinux"
         "git pull origin ${NONLINUX}"
         "make nonlinear_defconfig"
     COMMAND touch .nonlinux-setup
@@ -95,23 +81,20 @@ add_custom_command(
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_SOURCE_DIR}
         " "
-        "mkdir -p /fs"
-        "mount -o loop /workdir/fs.ext4 /fs"
-        "mkdir -p /fs/ccache"
-        "export HOME=/fs/ccache"
-        'rm -rf /fs/nonlinux/output/target/usr/C15'
-        'rm -rf /fs/nonlinux/output/target/usr/C15-\*'
-        "cd /fs/nonlinux"
+        "mkdir -p /workdir/ccache"
+        "export HOME=/workdir/ccache"
+        'rm -rf /workdir/nonlinux/output/target/usr/C15'
+        'rm -rf /workdir/nonlinux/output/target/usr/C15-\*'
+        "cd /workdir/nonlinux"
         "make C15-clean-for-reconfigure"
         "make C15-rebuild"
         "make playcontroller_driver-clean-for-reconfigure"
         "make playcontroller_driver-rebuild"
         "make espi_driver-clean-for-reconfigure"
         "make espi_driver-rebuild"
-        "rm -rf /fs/nonlinux/output/target/mnt/.not-mounted"
+        "rm -rf /workdir/nonlinux/output/target/mnt/.not-mounted"
         "make"
-        "cp /fs/nonlinux/output/images/rootfs.tar.gz /workdir/"
-        "chown ${USER_ID}.${GROUP_ID} /workdir/rootfs.tar.gz"
+        "ln -s /workdir/nonlinux/output/images/rootfs.tar.gz /workdir/rootfs.tar.gz"
     COMMAND echo "The final rootfs is located at ${CMAKE_BINARY_DIR}/build-tools/bbb/rootfs.tar.gz"
 )
 
@@ -123,11 +106,9 @@ add_custom_command(
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_SOURCE_DIR}
         " -ti "
-        "mkdir -p /fs"
-        "mount -o loop /workdir/fs.ext4 /fs"
-        "mkdir -p /fs/ccache"
-        "export HOME=/fs/ccache"
-        "cd /fs/nonlinux"
+        "mkdir -p /workdir/ccache"
+        "export HOME=/workdir/ccache"
+        "cd /workdir/nonlinux"
         "bash"
 )
 
