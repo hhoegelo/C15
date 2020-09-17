@@ -86,16 +86,16 @@ add_custom_command(
         'rm -rf /workdir/nonlinux/output/target/usr/C15'
         'rm -rf /workdir/nonlinux/output/target/usr/C15-\*'
         "cd /workdir/nonlinux"
-        "make C15-clean-for-reconfigure"
-        "make C15-rebuild"
-        "make playcontroller_driver-clean-for-reconfigure"
-        "make playcontroller_driver-rebuild"
-        "make espi_driver-clean-for-reconfigure"
-        "make espi_driver-rebuild"
+        'make C15-clean-for-reconfigure > /dev/null'
+        'make C15-rebuild > /dev/null'
+        'make playcontroller_driver-clean-for-reconfigure > /dev/null'
+        'make playcontroller_driver-rebuild > /dev/null'
+        'make espi_driver-clean-for-reconfigure > /dev/null'
+        'make espi_driver-rebuild > /dev/null'
         "rm -rf /workdir/nonlinux/output/target/mnt/.not-mounted"
-        "make"
+        'make > /dev/null'
         "rm -f /workdir/rootfs.tar.gz"
-        "ln -s /workdir/nonlinux/output/images/rootfs.tar.gz /workdir/rootfs.tar.gz"
+        "cp /workdir/nonlinux/output/images/rootfs.tar.gz /workdir/rootfs.tar.gz"
     COMMAND echo "The final rootfs is located at ${CMAKE_BINARY_DIR}/build-tools/bbb/rootfs.tar.gz"
 )
 

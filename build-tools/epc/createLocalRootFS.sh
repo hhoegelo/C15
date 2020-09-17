@@ -1,22 +1,20 @@
 #!/bin/sh
 
 set -e
-set -x
 
 rm -rf /bindir/squashfs-root /bindir/overlay-scratch /bindir/overlay-workdir /bindir/overlay-fs
 
 mkdir -p /internal/AP-Linux-mnt /bindir/overlay-scratch /bindir/overlay-workdir /bindir/overlay-fs
 fuseiso /bindir/AP-Linux-V.4.0.iso /internal/AP-Linux-mnt
 unsquashfs -no-xattrs /internal/AP-Linux-mnt/arch/x86_64/airootfs.sfs
-fuse-overlayfs -o lowerdir=/squashfs-root -o upperdir=/bindir/overlay-scratch -o workdir=/bindir/overlay-workdir /bindir/overlay-fs
+mv /squashfs-root /bindir
+fuse-overlayfs -o lowerdir=/bindir/squashfs-root -o upperdir=/bindir/overlay-scratch -o workdir=/bindir/overlay-workdir /bindir/overlay-fs
 mkdir /bindir/overlay-fs/Audiophile2NonLinux
 chmod 777 /bindir/overlay-fs/Audiophile2NonLinux
 cp -a /bindir/NonLinux.pkg.tar.gz /sources/hook /sources/install /sources/sda.sfdisk /bindir/overlay-fs/Audiophile2NonLinux
 cp -a /sources/runme.sh /bindir/overlay-fs/etc/profile.d/
 
 /bindir/overlay-fs/bin/arch-chroot /bindir/overlay-fs /bin/bash -c "\
-
-set -x
 
 cp /Audiophile2NonLinux/install/nlhook /lib/initcpio/install/nlhook
 cp /Audiophile2NonLinux/install/oroot /lib/initcpio/install/oroot
@@ -40,8 +38,8 @@ echo 'Server = file:///update-packages/pkg/' > /etc/pacman.d/mirrorlist
 cd /etc/apl-files && ./runme.sh
 cd /etc/apl-files && ./autologin.sh
 
-pacman --noconfirm -Sy
-pacman --noconfirm -Su
+pacman --noconfirm -Sy 
+pacman --noconfirm -Su 
 
 pacman --noconfirm -Rcs xorg gnome mesa man-db man-pages b43-fwcutter geoip ipw2100-fw ipw2200-fw libjpeg-turbo tango-icon-theme xorg-xmessage xf86-input-evdev xf86-input-synaptics zd1211-firmware xfsprogs cifs-utils emacs-nox lvm2 fuse2
 pacman --noconfirm -S cpupower git cmake make gcc glibmm pkgconf jdk11-openjdk libsoup freetype2 boost libpng png++
@@ -70,5 +68,5 @@ systemctl mask systemd-tmpfiles-clean
 systemctl mask systemd-tmpfiles-setup-dev
 rm /etc/profile.d/runme.sh
 rm -rf /Audiophile2NonLinux
-"
+" > /dev/null
 

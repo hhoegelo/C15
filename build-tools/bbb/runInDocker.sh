@@ -29,7 +29,6 @@ done
 
 # COPY local ssh files into the docker container to be able to push onto github
 echo "
-set -x
 mkdir -p /docker-ssh
 rsync -a /host-ssh/ /docker-ssh
 chown -R root /docker-ssh

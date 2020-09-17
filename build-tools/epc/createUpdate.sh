@@ -111,7 +111,7 @@ build_update() {
     download_packages || error "Downloading packages failed."
 
     /bindir/overlay-fs/bin/arch-chroot /bindir/overlay-fs /bin/bash -c "\
-        cd /build && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EPC_SCRIPTS=On -DBUILD_AUDIOENGINE=On -DBUILD_PLAYGROUND=On -DBUILD_ONLINEHELP=On -DBUILD_WEBUI=On /sources && make -j8"
+        cd /build && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EPC_SCRIPTS=On -DBUILD_AUDIOENGINE=On -DBUILD_PLAYGROUND=On -DBUILD_ONLINEHELP=On -DBUILD_WEBUI=On /sources && make -j8 > /dev/null"
     return $?
 }
 
@@ -125,7 +125,7 @@ setup_install_overlay() {
 
 install_update() {
     install_packages || error "Installing the packages failed."
-    /internal/epc-update-partition/bin/arch-chroot /internal/epc-update-partition /bin/bash -c "cd /build && make install"
+    /internal/epc-update-partition/bin/arch-chroot /internal/epc-update-partition /bin/bash -c "cd /build && make install > /dev/null"
     return $?
 }
 

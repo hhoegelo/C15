@@ -28,7 +28,6 @@ install(TARGETS ehc-preset              DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 install(CODE "execute_process(
     COMMAND bash -c \"
-    set -x
     ln -sf ./playcontroller $DESTDIR/bin/plc
     ln -sf ./playcontroller-read $DESTDIR/bin/plc-read
     \")")
