@@ -94,6 +94,7 @@ add_custom_command(
         "make espi_driver-rebuild"
         "rm -rf /workdir/nonlinux/output/target/mnt/.not-mounted"
         "make"
+        "rm -f /workdir/rootfs.tar.gz"
         "ln -s /workdir/nonlinux/output/images/rootfs.tar.gz /workdir/rootfs.tar.gz"
     COMMAND echo "The final rootfs is located at ${CMAKE_BINARY_DIR}/build-tools/bbb/rootfs.tar.gz"
 )

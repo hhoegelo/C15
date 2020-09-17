@@ -21,7 +21,7 @@ USER_ID=$(id -u $USER)
 mkdir -p $TMP_DIR
 
 echo "#!/bin/bash" > $USER_SCRIPT_FILE
-echo "set -x" >> $USER_SCRIPT_FILE
+
 for var in "$@"
 do
     echo "$var" >> $USER_SCRIPT_FILE

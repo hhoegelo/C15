@@ -1,21 +1,22 @@
 #!/bin/sh
 
 set -e
+set -x
 
 rm -rf /bindir/squashfs-root /bindir/overlay-scratch /bindir/overlay-workdir /bindir/overlay-fs
 
 mkdir -p /internal/AP-Linux-mnt /bindir/overlay-scratch /bindir/overlay-workdir /bindir/overlay-fs
 fuseiso /bindir/AP-Linux-V.4.0.iso /internal/AP-Linux-mnt
 unsquashfs -no-xattrs /internal/AP-Linux-mnt/arch/x86_64/airootfs.sfs
-
-mv /squashfs-root /bindir
-fuse-overlayfs -o lowerdir=/bindir/squashfs-root -o upperdir=/bindir/overlay-scratch -o workdir=/bindir/overlay-workdir /bindir/overlay-fs
+fuse-overlayfs -o lowerdir=/squashfs-root -o upperdir=/bindir/overlay-scratch -o workdir=/bindir/overlay-workdir /bindir/overlay-fs
 mkdir /bindir/overlay-fs/Audiophile2NonLinux
 chmod 777 /bindir/overlay-fs/Audiophile2NonLinux
 cp -a /bindir/NonLinux.pkg.tar.gz /sources/hook /sources/install /sources/sda.sfdisk /bindir/overlay-fs/Audiophile2NonLinux
 cp -a /sources/runme.sh /bindir/overlay-fs/etc/profile.d/
 
 /bindir/overlay-fs/bin/arch-chroot /bindir/overlay-fs /bin/bash -c "\
+
+set -x
 
 cp /Audiophile2NonLinux/install/nlhook /lib/initcpio/install/nlhook
 cp /Audiophile2NonLinux/install/oroot /lib/initcpio/install/oroot
